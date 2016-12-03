@@ -16,7 +16,4 @@ class VarDumpRenderer implements RendererInterface
     {
         var_dump($object);
     }
-
 }
-
-

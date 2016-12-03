@@ -17,6 +17,10 @@ class RenderersLoader
         $dir = glob($directory . '*.php');
 
         foreach ($dir as $file) {
+            if ('VarDumpRenderer.php' === $file) {
+                continue;
+            }
+
             if (!is_readable($file)) {
                 continue;
             }
@@ -25,6 +29,15 @@ class RenderersLoader
             $fullClassName = 'eznio\\dumper\\renderers\\' . substr(basename($file), 0, -4);
             if (class_exists($fullClassName)) {
                 $renderers[] = new $fullClassName();
+            }
+        }
+
+        $defaultRendererFile = $directory . 'VarDumpRenderer.php';
+        $defaultRendererClass = 'eznio\\dumper\\renderers\\VarDumpRenderer';
+        if (file_exists($defaultRendererFile)) {
+            include_once($defaultRendererFile);
+            if (class_exists($defaultRendererClass)) {
+                $renderers[] = new $defaultRendererClass();
             }
         }
 

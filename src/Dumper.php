@@ -4,6 +4,7 @@ namespace eznio\dumper;
 
 
 use eznio\dumper\interfaces\RendererInterface;
+use eznio\ar\Ar;
 
 class Dumper
 {
@@ -24,9 +25,16 @@ class Dumper
         }
     }
 
-    public static function init()
+    public static function init(array $renderers = [])
     {
-        self::$renderers = (new RenderersLoader())->load();
+        $renderers = Ar::filter($renderers, function($renderer) {
+            return $renderer instanceof RendererInterface;
+        });
+        if (count($renderers) > 0) {
+            self::$renderers = $renderers;
+        } else {
+            self::$renderers = (new RenderersLoader())->load();
+        }
         self::$isInitialized = true;
     }
 
