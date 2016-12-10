@@ -4,6 +4,7 @@ namespace eznio\dumper\renderers;
 
 
 use eznio\ar\Ar;
+use eznio\dumper\helpers\CommonPrefixHelper;
 use eznio\dumper\interfaces\RendererInterface;
 use eznio\dumper\styles\json\DefaultStyle;
 use eznio\dumper\styles\json\JsonStyleInterface;
@@ -50,12 +51,42 @@ class JsonRenderer implements RendererInterface
     public function render($object, $options = [])
     {
         $maxNesting = $this->getMaxNesting($options);
+        $shouldDumpFileLine = $this->getFileLineDump($options);
+
         $currentNesting = 1;
         $data = json_decode($object, true);
 
+        if (true === $shouldDumpFileLine) {
+            $this->renderFileLine();
+        }
         $this->println($this->getStyled('{', $this->style->getCurlyBracketStyle()));
         $this->renderLevel($data, $currentNesting, $maxNesting);
         $this->println($this->getStyled('{', $this->style->getCurlyBracketStyle()));
+    }
+
+    protected function renderFileLine()
+    {
+        $trace = debug_backtrace();
+        $callerData = Ar::get($trace, 2);
+        if (null === $callerData) {
+            return;
+        }
+
+        $fileName = Ar::get($callerData, 'file');
+        $commonPrefix = CommonPrefixHelper::find([$fileName, __DIR__]);
+
+        $className = $this->getClassNameColored($callerData);
+        $fileName = str_replace($commonPrefix, '', $fileName);
+        $lineNumber = Ar::get($callerData, 'line');
+
+        $this->println(sprintf(
+            '%s%s%s%s%s',
+            $this->getStyled($fileName, $this->style->getDumpFileStyle()),
+            $this->getStyled(':', $this->style->getDumpColonStyle()),
+            $this->getStyled($lineNumber, $this->style->getDumpLineStyle()),
+            $this->getStyled(' - ', $this->style->getDumpColonStyle()),
+            $this->getStyled($className, $this->style->getDumpClassStyle())
+        ));
     }
 
     /**
@@ -64,7 +95,7 @@ class JsonRenderer implements RendererInterface
      * @param $currentNesting
      * @param $maxNesting
      */
-    public function renderLevel($data, $currentNesting, $maxNesting)
+    protected function renderLevel($data, $currentNesting, $maxNesting)
     {
         foreach ($data as $key => $item) {
             $this->renderItem($key, $item, $currentNesting, $maxNesting);
@@ -78,7 +109,7 @@ class JsonRenderer implements RendererInterface
      * @param $currentNesting
      * @param $maxNesting
      */
-    public function renderItem($key, $item, $currentNesting, $maxNesting)
+    protected function renderItem($key, $item, $currentNesting, $maxNesting)
     {
         if (is_array($item)) {
             $this->renderArrayItem($key, $item, $currentNesting, $maxNesting);
@@ -94,7 +125,7 @@ class JsonRenderer implements RendererInterface
      * @param $currentNesting
      * @param $maxNesting
      */
-    public function renderArrayItem($key, $item, $currentNesting, $maxNesting)
+    protected function renderArrayItem($key, $item, $currentNesting, $maxNesting)
     {
         $styledColon = $this->getStyled(':', $this->style->getColonStyle()) ;
         $styledKey = $this->getStyledKey($key);
@@ -103,7 +134,7 @@ class JsonRenderer implements RendererInterface
 
         if (null !== $maxNesting && $currentNesting >= $maxNesting) {
             $styledCollapsedArray = sprintf(
-                '%s... %d ... %s',
+                '%s ... %d ... %s',
                 Styler::get($this->style->getCollapsedArrayStyle()),
                 count($item),
                 Styler::reset()
@@ -142,7 +173,7 @@ class JsonRenderer implements RendererInterface
      * @param $item
      * @param $currentNesting
      */
-    public function renderScalarItem($key, $item, $currentNesting)
+    protected function renderScalarItem($key, $item, $currentNesting)
     {
         $styledColon = $this->getStyled(':', $this->style->getColonStyle()) ;
         $styledKey = $this->getStyledKey($key);
@@ -180,7 +211,7 @@ class JsonRenderer implements RendererInterface
      * @param $key
      * @return string
      */
-    public function getStyledKey($key)
+    protected function getStyledKey($key)
     {
         return is_numeric($key) ?
             $this->getStyled($key, $this->style->getNumericKeyStyle()) :
@@ -192,7 +223,7 @@ class JsonRenderer implements RendererInterface
      * @param $item
      * @return array
      */
-    public function getStyledBrackets($item)
+    protected function getStyledBrackets($item)
     {
         $isNestedArray = is_int(key($item));
         if (true === $isNestedArray) {
@@ -214,10 +245,20 @@ class JsonRenderer implements RendererInterface
      * @param $options
      * @return int|null
      */
-    public function getMaxNesting($options)
+    protected function getMaxNesting($options)
     {
         $maxNesting = (int) Ar::get($options, 'nesting');
         return $maxNesting !== 0 ? $maxNesting : null;
+    }
+
+    /**
+     * Max allowed nesting calculation. Zero (or no "nesting" key) mean "no limit"
+     * @param $options
+     * @return int|null
+     */
+    protected function getFileLineDump($options)
+    {
+        return (bool) Ar::get($options, 'line');
     }
 
     /**
@@ -226,7 +267,7 @@ class JsonRenderer implements RendererInterface
      * @param $style
      * @return string
      */
-    public function getStyled($string, $style)
+    protected function getStyled($string, $style)
     {
         return Styler::get($style) . $string . Styler::reset();
     }
@@ -235,7 +276,7 @@ class JsonRenderer implements RendererInterface
      * Do I really have to comment this?
      * @param $line
      */
-    public function println($line)
+    protected function println($line)
     {
         echo $line . "\n";
     }
@@ -246,7 +287,30 @@ class JsonRenderer implements RendererInterface
      * @param $level
      * @return string
      */
-    public function nest($string, $level) {
+    protected function nest($string, $level) {
         return str_pad($string, strlen($string) + $level * 4, ' ', STR_PAD_LEFT);
+    }
+
+    /**
+     * @param $callerData
+     * @return string
+     */
+    protected function getClassNameColored($callerData)
+    {
+        $className = Ar::get($callerData, 'class');
+        $separators = ['\\', '::', '->'];
+        foreach ($separators as $separator) {
+            $className = str_replace(
+                $separator,
+                $this->getStyled($separator, $this->style->getDumpSeparatorStyle()),
+                $className
+            );
+        }
+
+        $result =
+            $className .
+            $this->getStyled(Ar::get($callerData, 'type'), $this->style->getDumpSeparatorStyle()) .
+            Ar::get($callerData, 'function') . '()';
+        return $result;
     }
 }

@@ -16,7 +16,9 @@ interface JsonStyleInterface
     public function getNumericValueStyle();
     public function getCollapsedArrayStyle();
 
+    public function getDumpClassStyle();
     public function getDumpFileStyle();
-    public function getDumpColonStyle();
     public function getDumpLineStyle();
+    public function getDumpColonStyle();
+    public function getDumpSeparatorStyle();
 }

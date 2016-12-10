@@ -9,12 +9,12 @@ class DefaultStyle implements JsonStyleInterface
 {
     public function getCurlyBracketStyle()
     {
-        return [Fg::LIGHT_GREEN];
+        return [Fg::WHITE];
     }
 
     public function getSquareBracketStyle()
     {
-        return [Fg::LIGHT_GREEN];
+        return [Fg::WHITE];
     }
 
     public function getQuotesStyle()
@@ -24,35 +24,49 @@ class DefaultStyle implements JsonStyleInterface
 
     public function getColonStyle()
     {
-        return [Fg::RED];
+        return [Fg::LIGHT_RED];
     }
 
     public function getStringKeyStyle()
     {
-        return [Fg::CYAN];
+        return [Fg::LIGHT_BLUE];
     }
 
     public function getStringValueStyle()
     {
-        return [Fg::WHITE];
+        return [Fg::GREEN];
     }
 
     public function getNumericKeyStyle()
     {
-        return [Fg::CYAN];
+        return [Fg::LIGHT_BLUE];
     }
 
     public function getNumericValueStyle()
     {
-        return [Fg::WHITE];
+        return [Fg::GREEN];
     }
 
     public function getCollapsedArrayStyle()
     {
+        return [Fg::DARK_GRAY];
+    }
+
+    public function getDumpClassStyle()
+    {
         return [Fg::WHITE];
     }
 
+    public function getDumpSeparatorStyle()
+    {
+        return [Fg::RED];
+    }
+
     public function getDumpFileStyle()
+    {
+        return [Fg::RED];
+    }
+    public function getDumpLineStyle()
     {
         return [Fg::RED];
     }
@@ -61,10 +75,4 @@ class DefaultStyle implements JsonStyleInterface
     {
         return [Fg::WHITE];
     }
-
-    public function getDumpLineStyle()
-    {
-        return [Fg::RED];
-    }
-
 }
