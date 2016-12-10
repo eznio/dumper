@@ -17,7 +17,7 @@ class RenderersLoader
         $dir = glob($directory . '*.php');
 
         foreach ($dir as $file) {
-            if ('VarDumpRenderer.php' === $file) {
+            if ('VarDumpRenderer.php' === basename($file)) {
                 continue;
             }
 
