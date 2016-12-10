@@ -40,7 +40,7 @@ class JsonRenderer implements RendererInterface
      */
     public function accept($object, $options = [])
     {
-        return null !== json_decode($object, true);
+        return is_array(json_decode($object, true));
     }
 
     /**
