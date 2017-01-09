@@ -12,7 +12,7 @@ class VarDumpRenderer implements RendererInterface
         return true;
     }
 
-    public function render($object, $options = [])
+    public function render($object, $options = [], $callerData = [])
     {
         var_dump($object);
     }

@@ -2,10 +2,23 @@
 
 require '../vendor/autoload.php';
 
-\eznio\dumper\Dumper::dump(
-    file_get_contents('large.json'),
-    [
-        'nesting' => 3,
-        'line' => true
-    ]
-);
+function a()
+{
+    b();
+}
+
+function b() {
+    throw new \Exception();
+}
+
+try {
+    a();
+} catch (\Exception $e) {
+    \eznio\dumper\Dumper::dump(
+        $e,
+        [
+            'line' => true
+        ]
+    );
+
+}

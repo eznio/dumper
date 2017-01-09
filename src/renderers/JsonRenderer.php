@@ -47,8 +47,9 @@ class JsonRenderer implements RendererInterface
      * Render entrance
      * @param $object
      * @param array $options
+     * @param array $callerData
      */
-    public function render($object, $options = [])
+    public function render($object, $options = [], $callerData = [])
     {
         $maxNesting = $this->getMaxNesting($options);
         $shouldDumpFileLine = $this->getFileLineDump($options);
@@ -57,21 +58,15 @@ class JsonRenderer implements RendererInterface
         $data = json_decode($object, true);
 
         if (true === $shouldDumpFileLine) {
-            $this->renderFileLine();
+            $this->renderFileLine($callerData);
         }
         $this->println($this->getStyled('{', $this->style->getCurlyBracketStyle()));
         $this->renderLevel($data, $currentNesting, $maxNesting);
         $this->println($this->getStyled('{', $this->style->getCurlyBracketStyle()));
     }
 
-    protected function renderFileLine()
+    protected function renderFileLine($callerData)
     {
-        $trace = debug_backtrace();
-        $callerData = Ar::get($trace, 2);
-        if (null === $callerData) {
-            return;
-        }
-
         $fileName = Ar::get($callerData, 'file');
         $commonPrefix = CommonPrefixHelper::find([$fileName, __DIR__]);
 

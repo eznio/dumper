@@ -16,10 +16,12 @@ class Dumper
         if (false === self::$isInitialized) {
             self::init();
         }
+
+        $stack = debug_backtrace();
         foreach (self::$renderers as $renderer) {
             /** @var RendererInterface $renderer */
             if ($renderer->accept($data, $options)) {
-                $renderer->render($data, $options);
+                $renderer->render($data, $options, $stack);
                 return;
             }
         }
