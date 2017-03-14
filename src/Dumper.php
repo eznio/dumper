@@ -11,7 +11,7 @@ class Dumper
     protected static $renderers = [];
     protected static $isInitialized = false;
 
-    public static function dump($data, $options = [])
+    public static function dump($data, $options = ['line' => true])
     {
         if (false === self::$isInitialized) {
             self::init();

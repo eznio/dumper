@@ -5,7 +5,7 @@ namespace eznio\dumper\styles\json;
 
 use eznio\styler\references\ForegroundColors as Fg;
 
-class DefaultStyle implements JsonStyleInterface
+class DefaultJsonStyle implements JsonStyleInterface
 {
     public function getCurlyBracketStyle()
     {

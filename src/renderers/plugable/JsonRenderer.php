@@ -1,12 +1,11 @@
 <?php
 
-namespace eznio\dumper\renderers;
+namespace eznio\dumper\renderers\plugable;
 
 
-use eznio\ar\Ar;
-use eznio\dumper\helpers\CommonPrefixHelper;
 use eznio\dumper\interfaces\RendererInterface;
-use eznio\dumper\styles\json\DefaultStyle;
+use eznio\dumper\renderers\AbstractRenderer;
+use eznio\dumper\styles\json\DefaultJsonStyle;
 use eznio\dumper\styles\json\JsonStyleInterface;
 use eznio\styler\Styler;
 
@@ -14,7 +13,9 @@ use eznio\styler\Styler;
  * Formats and renders JSON
  * @package eznio\dumper\renderers
  */
-class JsonRenderer implements RendererInterface
+class JsonRenderer
+    extends AbstractRenderer
+    implements RendererInterface
 {
     /** @var JsonStyleInterface */
     protected $style = null;
@@ -26,7 +27,7 @@ class JsonRenderer implements RendererInterface
     public function __construct($style = null)
     {
         if (null === $style || ! $style instanceof JsonStyleInterface) {
-            $this->style = new DefaultStyle();
+            $this->style = new DefaultJsonStyle();
         } else {
             $this->style = $style;
         }
@@ -40,7 +41,7 @@ class JsonRenderer implements RendererInterface
      */
     public function accept($object, $options = [])
     {
-        return is_array(json_decode($object, true));
+        return !is_array($object) && is_array(json_decode($object, true));
     }
 
     /**
@@ -52,36 +53,18 @@ class JsonRenderer implements RendererInterface
     public function render($object, $options = [], $callerData = [])
     {
         $maxNesting = $this->getMaxNesting($options);
-        $shouldDumpFileLine = $this->getFileLineDump($options);
 
         $currentNesting = 1;
         $data = json_decode($object, true);
 
+        $shouldDumpFileLine = $this->getFileLineDump($options);
         if (true === $shouldDumpFileLine) {
             $this->renderFileLine($callerData);
         }
+
         $this->println($this->getStyled('{', $this->style->getCurlyBracketStyle()));
         $this->renderLevel($data, $currentNesting, $maxNesting);
         $this->println($this->getStyled('{', $this->style->getCurlyBracketStyle()));
-    }
-
-    protected function renderFileLine($callerData)
-    {
-        $fileName = Ar::get($callerData, 'file');
-        $commonPrefix = CommonPrefixHelper::find([$fileName, __DIR__]);
-
-        $className = $this->getClassNameColored($callerData);
-        $fileName = str_replace($commonPrefix, '', $fileName);
-        $lineNumber = Ar::get($callerData, 'line');
-
-        $this->println(sprintf(
-            '%s%s%s%s%s',
-            $this->getStyled($fileName, $this->style->getDumpFileStyle()),
-            $this->getStyled(':', $this->style->getDumpColonStyle()),
-            $this->getStyled($lineNumber, $this->style->getDumpLineStyle()),
-            $this->getStyled(' - ', $this->style->getDumpColonStyle()),
-            $this->getStyled($className, $this->style->getDumpClassStyle())
-        ));
     }
 
     /**
@@ -233,79 +216,5 @@ class JsonRenderer implements RendererInterface
             ];
         }
 
-    }
-
-    /**
-     * Max allowed nesting calculation. Zero (or no "nesting" key) mean "no limit"
-     * @param $options
-     * @return int|null
-     */
-    protected function getMaxNesting($options)
-    {
-        $maxNesting = (int) Ar::get($options, 'nesting');
-        return $maxNesting !== 0 ? $maxNesting : null;
-    }
-
-    /**
-     * Max allowed nesting calculation. Zero (or no "nesting" key) mean "no limit"
-     * @param $options
-     * @return int|null
-     */
-    protected function getFileLineDump($options)
-    {
-        return (bool) Ar::get($options, 'line');
-    }
-
-    /**
-     * Styler usage shortcut
-     * @param $string
-     * @param $style
-     * @return string
-     */
-    protected function getStyled($string, $style)
-    {
-        return Styler::get($style) . $string . Styler::reset();
-    }
-
-    /**
-     * Do I really have to comment this?
-     * @param $line
-     */
-    protected function println($line)
-    {
-        echo $line . "\n";
-    }
-
-    /**
-     * Calculates indention size
-     * @param $string
-     * @param $level
-     * @return string
-     */
-    protected function nest($string, $level) {
-        return str_pad($string, strlen($string) + $level * 4, ' ', STR_PAD_LEFT);
-    }
-
-    /**
-     * @param $callerData
-     * @return string
-     */
-    protected function getClassNameColored($callerData)
-    {
-        $className = Ar::get($callerData, 'class');
-        $separators = ['\\', '::', '->'];
-        foreach ($separators as $separator) {
-            $className = str_replace(
-                $separator,
-                $this->getStyled($separator, $this->style->getDumpSeparatorStyle()),
-                $className
-            );
-        }
-
-        $result =
-            $className .
-            $this->getStyled(Ar::get($callerData, 'type'), $this->style->getDumpSeparatorStyle()) .
-            Ar::get($callerData, 'function') . '()';
-        return $result;
     }
 }

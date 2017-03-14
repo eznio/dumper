@@ -17,7 +17,10 @@ class RenderersLoader
         $dir = glob($directory . '*.php');
 
         foreach ($dir as $file) {
-            if ('VarDumpRenderer.php' === basename($file)) {
+            if (
+                'VarDumpRenderer.php' === basename($file) ||
+                'AbstractRenderer.php' === basename($file)
+            ) {
                 continue;
             }
 
@@ -26,7 +29,7 @@ class RenderersLoader
             }
             include_once($file);
 
-            $fullClassName = 'eznio\\dumper\\renderers\\' . substr(basename($file), 0, -4);
+            $fullClassName = 'eznio\\dumper\\renderers\\plugable\\' . substr(basename($file), 0, -4);
             if (class_exists($fullClassName)) {
                 $renderers[] = new $fullClassName();
             }
@@ -46,6 +49,9 @@ class RenderersLoader
 
     public function getDefaultRenderersDirectory()
     {
-        return __DIR__ . DIRECTORY_SEPARATOR . 'renderers' . DIRECTORY_SEPARATOR;
+        return
+            __DIR__ . DIRECTORY_SEPARATOR .
+            'renderers' . DIRECTORY_SEPARATOR .
+            'plugable' . DIRECTORY_SEPARATOR;
     }
 }

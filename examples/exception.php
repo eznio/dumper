@@ -11,14 +11,17 @@ function b() {
     throw new \Exception();
 }
 
-try {
-    a();
-} catch (\Exception $e) {
-    \eznio\dumper\Dumper::dump(
-        $e,
-        [
-            'line' => true
-        ]
-    );
+class c
+{
+    function d()
+    {
+        a();
+    }
+}
 
+try {
+    $c = new c();
+    $c->d();
+} catch (\Exception $e) {
+    \eznio\dumper\Dumper::dump($e, ['line' => true]);
 }

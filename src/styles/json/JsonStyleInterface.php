@@ -3,7 +3,9 @@
 namespace eznio\dumper\styles\json;
 
 
-interface JsonStyleInterface
+use eznio\dumper\styles\BaseStyleInterface;
+
+interface JsonStyleInterface extends BaseStyleInterface
 {
     public function getCurlyBracketStyle();
     public function getSquareBracketStyle();
@@ -15,10 +17,4 @@ interface JsonStyleInterface
     public function getNumericKeyStyle();
     public function getNumericValueStyle();
     public function getCollapsedArrayStyle();
-
-    public function getDumpClassStyle();
-    public function getDumpFileStyle();
-    public function getDumpLineStyle();
-    public function getDumpColonStyle();
-    public function getDumpSeparatorStyle();
 }
