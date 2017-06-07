@@ -7,9 +7,9 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4.0",
-        "eznio/tabler": "dev-master",
-        "eznio/ar": "dev-master",
-        "eznio/styler": "dev-master"
+        "eznio/tabler": "*",
+        "eznio/ar": "*",
+        "eznio/styler": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.0"
