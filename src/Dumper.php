@@ -29,7 +29,7 @@ class Dumper
 
     public static function init(array $renderers = [])
     {
-        $renderers = Ar::filter($renderers, function($renderer) {
+        $renderers = Ar::filter($renderers, function ($renderer) {
             return $renderer instanceof RendererInterface;
         });
         if (count($renderers) > 0) {
@@ -42,6 +42,6 @@ class Dumper
 
     public static function addRenderer(RendererInterface $renderer)
     {
-         self::$renderers[] = $renderer;
+        self::$renderers[] = $renderer;
     }
 }

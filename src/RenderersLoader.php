@@ -35,7 +35,9 @@ class RenderersLoader
             }
         }
 
-        $defaultRendererFile = $directory . 'VarDumpRenderer.php';
+        $defaultRendererFile = $directory
+            . DIRECTORY_SEPARATOR . '..'
+            . DIRECTORY_SEPARATOR. 'VarDumpRenderer.php';
         $defaultRendererClass = 'eznio\\dumper\\renderers\\VarDumpRenderer';
         if (file_exists($defaultRendererFile)) {
             include_once($defaultRendererFile);
