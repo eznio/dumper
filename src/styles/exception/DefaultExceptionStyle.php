@@ -19,13 +19,29 @@ class DefaultExceptionStyle implements ExceptionStyleInterface
 
     public function getClassSeparatorStyle()
     {
-        return [Fg::RED];
+        return [Fg::LIGHT_GRAY];
     }
 
     public function getFunctionNameStyle()
     {
         return [Fg::WHITE];
     }
+
+    public function getExceptionFileStyle()
+    {
+        return [Fg::DARK_GRAY];
+    }
+
+    public function getExceptionColonStyle()
+    {
+        return [Fg::WHITE];
+    }
+
+    public function getExceptionLineStyle()
+    {
+        return [Fg::DARK_GRAY];
+    }
+
 
     public function getDumpClassStyle()
     {

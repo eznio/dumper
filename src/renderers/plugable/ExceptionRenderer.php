@@ -84,9 +84,9 @@ class ExceptionRenderer
                 . $this->getStyled(Ar::get($level, 'type'), $this->style->getClassSeparatorStyle())
                 . $this->getStyled(Ar::get($level, 'function') . '()', $this->style->getFunctionNameStyle()),
 
-            $this->getStyled(str_replace($commonPrefix, '', Ar::get($level, 'file')), $this->style->getDumpFileStyle())
-                . $this->getStyled(':', $this->style->getDumpColonStyle())
-                . $this->getStyled(Ar::get($level, 'line'), $this->style->getDumpLineStyle())
+            $this->getStyled(str_replace($commonPrefix, '', Ar::get($level, 'file')), $this->style->getExceptionFileStyle())
+                . $this->getStyled(' : ', $this->style->getExceptionColonStyle())
+                . $this->getStyled(Ar::get($level, 'line'), $this->style->getExceptionLineStyle())
         );
     }
 }
